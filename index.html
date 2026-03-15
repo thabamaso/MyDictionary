@@ -82,9 +82,22 @@
     #searchBtn:hover { opacity: 0.85; }
 
     main {
-      max-width: 860px;
+      max-width: 1400px;
       margin: 40px auto;
-      padding: 0 20px;
+      padding: 0 28px;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    @media (min-width: 860px) {
+      .results-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .col-full { grid-column: 1 / -1; }
     }
 
     .placeholder {
@@ -159,7 +172,6 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 24px 28px;
-      margin-bottom: 18px;
     }
 
     .section-title {
@@ -303,6 +315,7 @@
       .word-title { font-size: 2rem; }
       .translation-box { flex-direction: column; }
       .trans-divider { width: 100%; height: 1px; }
+      main { padding: 0 14px; }
     }
   </style>
 </head>
@@ -455,30 +468,32 @@
       </div>`;
 
     app.innerHTML = `
-      <div class="word-header">
+      <div class="word-header col-full">
         <div class="word-title">${word}</div>
         ${phonetic ? `<div class="phonetic">${phonetic}</div>` : ''}
         ${audioUrl ? `<button class="audio-btn" onclick="playAudio('${audioUrl}')">🔊 Listen</button>` : ''}
       </div>
 
-      <div class="section">
-        <div class="section-title">Synonyms</div>
-        <div class="tags">${synHtml}</div>
+      <div class="results-grid">
+        <div class="section">
+          <div class="section-title">Synonyms</div>
+          <div class="tags">${synHtml}</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Antonyms (Opposites)</div>
+          <div class="tags">${antHtml}</div>
+        </div>
+
+        ${meaningsHtml.replace(/<div class="section">/g, '<div class="section col-full">')}
+
+        <div class="section">
+          <div class="section-title">Example Sentences</div>
+          ${exampleHtml}
+        </div>
+
+        ${transHtml.replace('<div class="section">', '<div class="section">')}
       </div>
-
-      <div class="section">
-        <div class="section-title">Antonyms (Opposites)</div>
-        <div class="tags">${antHtml}</div>
-      </div>
-
-      ${meaningsHtml}
-
-      <div class="section">
-        <div class="section-title">Example Sentences</div>
-        ${exampleHtml}
-      </div>
-
-      ${transHtml}
     `;
   }
 
