@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyDictionary</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #6c63ff;
+      --accent2: #00c9a7;
+      --text: #e8eaf6;
+      --muted: #8b8fa8;
+      --red: #ff6b6b;
+      --yellow: #ffd93d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .search-wrapper {
+      flex: 1;
+      display: flex;
+      gap: 10px;
+    }
+
+    #searchInput {
+      flex: 1;
+      padding: 12px 20px;
+      border-radius: 50px;
+      border: 2px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #searchInput:focus {
+      border-color: var(--accent);
+    }
+
+    #searchBtn {
+      padding: 12px 28px;
+      border-radius: 50px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    #searchBtn:hover { opacity: 0.85; }
+
+    main {
+      max-width: 860px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .placeholder {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+
+    .placeholder .icon { font-size: 4rem; margin-bottom: 16px; }
+    .placeholder p { font-size: 1.1rem; }
+
+    .spinner {
+      display: flex;
+      justify-content: center;
+      padding: 60px;
+    }
+
+    .spinner::after {
+      content: '';
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      background: rgba(255,107,107,0.1);
+      border: 1px solid rgba(255,107,107,0.4);
+      color: var(--red);
+      padding: 20px 24px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .word-header {
+      margin-bottom: 28px;
+    }
+
+    .word-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .phonetic {
+      font-size: 1.1rem;
+      color: var(--accent2);
+      margin-top: 4px;
+    }
+
+    .audio-btn {
+      margin-top: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 18px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .audio-btn:hover { background: var(--border); }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    .part-of-speech {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 50px;
+      background: rgba(108,99,255,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(108,99,255,0.3);
+      margin-bottom: 14px;
+    }
+
+    .definition {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 8px;
+      padding-left: 16px;
+      border-left: 2px solid var(--border);
+    }
+
+    .definition + .definition { margin-top: 10px; }
+
+    .example {
+      font-size: 0.92rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 6px;
+      padding-left: 16px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .tag {
+      padding: 5px 14px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+
+    .tag-syn {
+      background: rgba(0,201,167,0.1);
+      color: var(--accent2);
+      border: 1px solid rgba(0,201,167,0.25);
+    }
+
+    .tag-ant {
+      background: rgba(255,107,107,0.1);
+      color: var(--red);
+      border: 1px solid rgba(255,107,107,0.25);
+    }
+
+    .translation-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .trans-lang {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .trans-text-en {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .trans-text-fa {
+      font-size: 1.4rem;
+      font-family: 'Segoe UI', Tahoma, serif;
+      direction: rtl;
+      font-weight: 700;
+      color: var(--yellow);
+    }
+
+    .trans-divider {
+      width: 1px;
+      background: var(--border);
+      align-self: stretch;
+    }
+
+    .trans-col { flex: 1; }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 8px;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .no-data {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; }
+      .logo { font-size: 1.3rem; }
+      .word-title { font-size: 2rem; }
+      .translation-box { flex-direction: column; }
+      .trans-divider { width: 100%; height: 1px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">MyDictionary</span>
+  <div class="search-wrapper">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search any English word..."
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button id="searchBtn">Search</button>
+  </div>
+</header>
+
+<main id="app">
+  <div class="placeholder">
+    <div class="icon">📖</div>
+    <p>Type a word above to get definitions, synonyms, antonyms, examples, and Persian translation.</p>
+  </div>
+</main>
+
+<script>
+  const DICT_API = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
+  const TRANS_API = 'https://api.mymemory.translated.net/get';
+
+  const app = document.getElementById('app');
+  const input = document.getElementById('searchInput');
+  const btn = document.getElementById('searchBtn');
+
+  let debounceTimer = null;
+  let currentWord = '';
+
+  btn.addEventListener('click', () => search());
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const val = input.value.trim();
+    if (val.length >= 2) {
+      debounceTimer = setTimeout(() => search(val), 700);
+    }
+  });
+
+  async function search(word) {
+    word = (word || input.value).trim().toLowerCase();
+    if (!word || word === currentWord) return;
+    currentWord = word;
+    showLoading();
+
+    try {
+      const [dictRes, transRes] = await Promise.allSettled([
+        fetch(DICT_API + encodeURIComponent(word)).then(r => r.json()),
+        translateToFarsi(word),
+      ]);
+
+      const dictData = dictRes.status === 'fulfilled' ? dictRes.value : null;
+      const translation = transRes.status === 'fulfilled' ? transRes.value : null;
+
+      if (!dictData || dictData.title === 'No Definitions Found' || !Array.isArray(dictData)) {
+        showError(`No results found for "<strong>${word}</strong>".`);
+        return;
+      }
+
+      render(dictData, translation);
+    } catch (err) {
+      showError('Something went wrong. Please try again.');
+    }
+  }
+
+  async function translateToFarsi(text) {
+    const url = `${TRANS_API}?q=${encodeURIComponent(text)}&langpair=en|fa`;
+    const r = await fetch(url);
+    const data = await r.json();
+    if (data.responseStatus === 200) return data.responseData.translatedText;
+    throw new Error('Translation failed');
+  }
+
+  function showLoading() {
+    app.innerHTML = `<div class="spinner"></div>`;
+  }
+
+  function showError(msg) {
+    app.innerHTML = `<div class="error-msg">${msg}</div>`;
+  }
+
+  function render(data, translation) {
+    const entry = data[0];
+    const word = entry.word;
+    const phonetics = entry.phonetics || [];
+    const phonetic = phonetics.find(p => p.text)?.text || '';
+    const audioUrl = phonetics.find(p => p.audio)?.audio || '';
+
+    const allSynonyms = new Set();
+    const allAntonyms = new Set();
+    const allExamples = [];
+
+    const meaningsHtml = entry.meanings.map(m => {
+      (m.synonyms || []).forEach(s => allSynonyms.add(s));
+      (m.antonyms || []).forEach(a => allAntonyms.add(a));
+
+      const defs = m.definitions.slice(0, 4).map(d => {
+        (d.synonyms || []).forEach(s => allSynonyms.add(s));
+        (d.antonyms || []).forEach(a => allAntonyms.add(a));
+        if (d.example) allExamples.push(d.example);
+        return `
+          <div class="definition">
+            ${d.definition}
+            ${d.example ? `<div class="example">"${d.example}"</div>` : ''}
+          </div>`;
+      }).join('');
+
+      return `
+        <div class="section">
+          <div class="part-of-speech">${m.partOfSpeech}</div>
+          ${defs}
+        </div>`;
+    }).join('');
+
+    const synHtml = allSynonyms.size
+      ? [...allSynonyms].slice(0, 20).map(s => `<span class="tag tag-syn">${s}</span>`).join('')
+      : '<span class="no-data">No synonyms found</span>';
+
+    const antHtml = allAntonyms.size
+      ? [...allAntonyms].slice(0, 20).map(a => `<span class="tag tag-ant">${a}</span>`).join('')
+      : '<span class="no-data">No antonyms found</span>';
+
+    const exampleHtml = allExamples.length
+      ? allExamples.slice(0, 5).map(ex => `<div class="definition"><span class="example" style="font-style:normal;color:var(--text)">"${ex}"</span></div>`).join('')
+      : '<span class="no-data">No examples found</span>';
+
+    const transHtml = `
+      <div class="section">
+        <div class="section-title">Translation</div>
+        <div class="translation-box">
+          <div class="trans-col">
+            <div class="trans-lang">English</div>
+            <div class="trans-text-en">${word}</div>
+          </div>
+          <div class="trans-divider"></div>
+          <div class="trans-col">
+            <div class="trans-lang">Persian (فارسی)</div>
+            <div class="trans-text-fa">${translation || '<span style="color:var(--muted);font-size:0.9rem;font-style:italic">Translation unavailable</span>'}</div>
+          </div>
+        </div>
+      </div>`;
+
+    app.innerHTML = `
+      <div class="word-header">
+        <div class="word-title">${word}</div>
+        ${phonetic ? `<div class="phonetic">${phonetic}</div>` : ''}
+        ${audioUrl ? `<button class="audio-btn" onclick="playAudio('${audioUrl}')">🔊 Listen</button>` : ''}
+      </div>
+
+      <div class="section">
+        <div class="section-title">Synonyms</div>
+        <div class="tags">${synHtml}</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Antonyms (Opposites)</div>
+        <div class="tags">${antHtml}</div>
+      </div>
+
+      ${meaningsHtml}
+
+      <div class="section">
+        <div class="section-title">Example Sentences</div>
+        ${exampleHtml}
+      </div>
+
+      ${transHtml}
+    `;
+  }
+
+  function playAudio(url) {
+    new Audio(url).play().catch(() => {});
+  }
+</script>
+
+</body>
+</html>
