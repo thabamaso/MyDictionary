@@ -141,6 +141,18 @@
       margin-bottom: 28px;
     }
 
+    .word-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .header-translation {
+      text-align: right;
+    }
+
     .word-title {
       font-size: 2.8rem;
       font-weight: 800;
@@ -469,9 +481,17 @@
 
     app.innerHTML = `
       <div class="word-header col-full">
-        <div class="word-title">${word}</div>
-        ${phonetic ? `<div class="phonetic">${phonetic}</div>` : ''}
-        ${audioUrl ? `<button class="audio-btn" onclick="playAudio('${audioUrl}')">🔊 Listen</button>` : ''}
+        <div class="word-title-row">
+          <div>
+            <div class="word-title">${word}</div>
+            ${phonetic ? `<div class="phonetic">${phonetic}</div>` : ''}
+            ${audioUrl ? `<button class="audio-btn" onclick="playAudio('${audioUrl}')">🔊 Listen</button>` : ''}
+          </div>
+          <div class="header-translation">
+            <div class="trans-lang">Persian (فارسی)</div>
+            <div class="trans-text-fa">${translation || '<span style="color:var(--muted);font-size:0.9rem;font-style:italic">—</span>'}</div>
+          </div>
+        </div>
       </div>
 
       <div class="results-grid">
@@ -487,12 +507,10 @@
 
         ${meaningsHtml.replace(/<div class="section">/g, '<div class="section col-full">')}
 
-        <div class="section">
+        <div class="section col-full">
           <div class="section-title">Example Sentences</div>
           ${exampleHtml}
         </div>
-
-        ${transHtml.replace('<div class="section">', '<div class="section">')}
       </div>
     `;
   }
